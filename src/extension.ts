@@ -9,13 +9,31 @@ interface ResF2poolInfo {
 	worker_length_online: number
 }
 
+const CURRENCIES: { [key: string]: string } = {
+  "BTC": "bitcoin",
+  "LTC": "litecoin",
+  "ETH": "ethereum"
+}
+
 let myStatusBarItem: vscode.StatusBarItem;
 
 export function activate({ subscriptions }: vscode.ExtensionContext) {
-
 	// register a command that updates the info
 	const myCommandId = 'f2pool-watcher.update';
-	subscriptions.push(vscode.commands.registerCommand(myCommandId, () => {
+	subscriptions.push(vscode.commands.registerCommand(myCommandId, async () => {
+		const config = vscode.workspace.getConfiguration('f2poolWatcher')
+		if (!config.get('currency')) {
+			const val = await vscode.window.showQuickPick(Object.keys(CURRENCIES), {
+				placeHolder: 'Select a currency',
+			})
+			await config.update('currency', val, true)
+		} 
+		if (!config.get('username')) {
+			const val = await vscode.window.showInputBox({
+				placeHolder: 'Enter F2Pool username',
+			})
+			await config.update('username', val, true)
+		}
 		updateStatusBarItem()
 	}));
 
@@ -29,18 +47,25 @@ export function activate({ subscriptions }: vscode.ExtensionContext) {
 }
 
 function updateStatusBarItem(): void {
-	axios.get<ResF2poolInfo>('https://api.f2pool.com/eth/rustchi').then(res => {
-		const {
-			value,
-			value_today,
-			hashrate,
-			worker_length,
-			worker_length_online,
-		} = res.data
-		myStatusBarItem.text = 
-			`$(ruby) ETH-rustchi | $(pulse) ${value_today.toFixed(8)}/${value.toFixed(8)} | $(dashboard) ${(hashrate / 1e6).toFixed(2)}MH/s | $(rocket) ${worker_length_online}/${worker_length}`;
-		myStatusBarItem.tooltip = 
-			`ETH-rustchi\ntoday: ${value_today.toFixed(8)}\ntotal: ${value.toFixed(8)}\nhashrate: ${(hashrate / 1e6).toFixed(2)}MH/s\nworkers(online/total): ${worker_length_online}/${worker_length}\n(click to refresh)`;
+	const config = vscode.workspace.getConfiguration('f2poolWatcher')
+	if (!config || !config.get('currency') || !config.get('username')) {
+		myStatusBarItem.text = `$(ruby) Click to config f2pool-watcher`
 		myStatusBarItem.show();
-	})
+	} else {
+		const url = `https://api.f2pool.com/${CURRENCIES[config.get('currency') as string]}/${config.get('username')}`
+		axios.get<ResF2poolInfo>(url).then(res => {
+			const {
+				value,
+				value_today,
+				hashrate,
+				worker_length,
+				worker_length_online,
+			} = res.data
+			myStatusBarItem.text = 
+				`$(ruby) ETH-rustchi | $(pulse) ${value_today.toFixed(8)}/${value.toFixed(8)} | $(dashboard) ${(hashrate / 1e6).toFixed(2)}MH/s | $(rocket) ${worker_length_online}/${worker_length}`;
+			myStatusBarItem.tooltip = 
+				`ETH-rustchi\ntoday: ${value_today.toFixed(8)}\ntotal: ${value.toFixed(8)}\nhashrate: ${(hashrate / 1e6).toFixed(2)}MH/s\nworkers(online/total): ${worker_length_online}/${worker_length}\n(click to refresh)`;
+			myStatusBarItem.show();
+		})
+	}
 }
