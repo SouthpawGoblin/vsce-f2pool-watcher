@@ -1,8 +1,9 @@
 {
 	"name": "f2pool-watcher",
-	"displayName": "f2pool-watcher",
-	"description": "status bar info for miners of f2pool",
-	"version": "0.0.1",
+	"displayName": "F2Pool Watcher",
+	"description": "Show F2Pool mining info in the status bar",
+	"version": "1.0.0",
+	"license": "MIT",
 	"engines": {
 		"vscode": "^1.54.0"
 	},
@@ -19,16 +20,26 @@
         "f2poolWatcher.currency": {
           "type": ["string", "null"],
           "default": null,
-          "description": "Coin currency"
+          "description": "F2Pool supported currency"
         },
         "f2poolWatcher.username": {
           "type": ["string", "null"],
           "default": null,
-          "description": "Username of f2pool"
-        }
+          "description": "F2Pool username"
+        },
+				"f2poolWatcher.refreshInterval": {
+					"type": ["number"],
+          "default": 30,
+          "description": "Auto refresh interval in minutes, 0 means no auto refresh, must be longer than 5 minutes to prevent frequent API call"
+				}
       }
     }
 	},
+	"publisher": "RogerChi",
+	"repository": {
+    "type": "git",
+    "url": "https://github.com/SouthpawGoblin/vsce-f2pool-watcher.git"
+  },
 	"main": "./out/extension.js",
 	"scripts": {
 		"vscode:prepublish": "yarn run compile",
