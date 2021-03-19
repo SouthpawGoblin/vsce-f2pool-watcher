@@ -2,6 +2,8 @@
 
 This is a VS Code extension that can show [F2Pool](https://www.f2pool.com/) mining informations in the status bar.
 
+Queries [F2Pool single user's data API](https://www.f2pool.com/developer/api#request-user) under the hood.
+
 ## Features
 
 ![feature](assets/feature.png)
