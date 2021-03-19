@@ -32,3 +32,7 @@ This extension contributes the following settings:
 ### 1.0.0
 
 Initial release of f2pool-watch
+
+### 1.0.1
+
+Update icon
